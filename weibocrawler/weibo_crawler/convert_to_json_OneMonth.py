@@ -1,11 +1,12 @@
 import datetime
 import pymysql
 import json
+import os  # 添加 os 模块来处理文件路径
 
 def connect_db():
     return pymysql.connect(host='localhost',
                            user='root',
-                           password='123456',  # 更新为您的密码
+                           password='huchp6',  # 更新为您的密码
                            db='weibo_test',
                            charset='utf8mb4',
                            cursorclass=pymysql.cursors.DictCursor)
@@ -40,9 +41,17 @@ def export_data():
                 cursor.execute(sql_comments, (post['wid'],))
                 comments = cursor.fetchall()
                 post['comments'] = comments  # 将评论列表直接添加到帖子字典中
+
+            # 确保 data 目录存在
+            if not os.path.exists('data'):
+                os.makedirs('data')
+
+            # 使用当前日期命名 JSON 文件
+            today_date = datetime.datetime.now().strftime("%Y-%m-%d")
+            filename = f"data/data_{today_date}.json"
             
-            # Export to JSON
-            with open('data_OneMonth.json', 'w', encoding='utf-8') as jsonfile:
+            # 导出到 JSON 文件
+            with open(filename, 'w', encoding='utf-8') as jsonfile:
                 json.dump(posts, jsonfile, ensure_ascii=False, indent=4, default=json_serial)
                 
     finally:
